@@ -9,7 +9,7 @@
 int main(int argc, char** argv)
 {
     DXTools dx = DXTools();
-    WindowTools window = WindowTools();
+    WindowTools window = WindowTools("DX12_WNDCLASS", "D3D12 Sample");
 
     // Parse command line
     if (argc && argv)
