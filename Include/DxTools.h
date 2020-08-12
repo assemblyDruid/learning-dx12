@@ -40,6 +40,9 @@ private:
     void
     CreateCommandQueue(D3D12_COMMAND_LIST_TYPE list_type = D3D12_COMMAND_LIST_TYPE_DIRECT);
 
+    void
+    GetScreenTearSupport();
+
     static const u8 kNumFrames_ = 3;
     bool            use_warp_;
     u32             dx_is_initialized_;

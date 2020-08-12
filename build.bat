@@ -17,7 +17,7 @@ SET /A RELEASE_BUILD=0
 SET SCRIPT_DIR=%cd%
 SET SOURCE_DIR=%SCRIPT_DIR%\src
 SET INCLUDE_DIR=%SCRIPT_DIR%\include
-SET BIN_DIR=%SCRIPT_DIR%\bin
+SET BIN_DIR=%SCRIPT_DIR%\bin\
 SET APP_NAME=dx12
 SET APP_ARCH=x64
 
@@ -29,20 +29,14 @@ SET APP_ARCH=x64
 ::
 ::------------------------------
 SET VC_VARS_2019="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
-SET VC_VARS_2017="C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvarsall.bat"
 
-where cl >nul 2>nul
+rem where cl >nul 2>nul
 IF EXIST %VC_VARS_2019% (
-    IF %ERRORLEVEL% NEQ 0 call %VC_VARS_2019% %APP_ARCH% >nul
-    IF %ERRORLEVEL% NEQ 0 GOTO :COMPILE_AND_LINK
-)
-IF EXIST %VC_VARS_2017% (
-    IF %ERRORLEVEL% NEQ 0 call %VC_VARS_2017% %APP_ARCH% >nul
-    IF %ERRORLEVEL% NEQ 0 GOTO :COMPILE_AND_LINK
+    call %VC_VARS_2019% %APP_ARCH% >nul
+    GOTO :COMPILE_AND_LINK
 )
 GOTO :VS_NOT_FOUND
 
-IF NOT EXIST "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64" ( GOTO :KIT_NOT_FOUD )
 
 :COMPILE_AND_LINK
 :: Store msvc clutter elsewhere
@@ -69,9 +63,10 @@ pushd msvc_landfill >nul
 :: /MACHINE:<arg>       Declare machine arch (should match vcvarsall env setting).
 :: /NODEFAULTLIB:<arg>  Ignore a library.
 :: /LIBPATH:<arg>       Specify library directory/directories.
+:: /MP                  Build w/ multiple processes
 
 :: General Parameters
-SET GeneralParameters=/Oi /Qpar /EHsc /GL /nologo /Ot /TP /std:c++latest
+SET GeneralParameters=/Oi /Qpar /EHsc /GL /nologo /Ot /TP /MP8 /std:c++latest
 
 :: Debug Paramters
 SET DebugParameters=/Od /MTd /W4 /WX /D__DXDEBUG__#1
@@ -114,6 +109,8 @@ IF %ERRORLEVEL% NEQ 0 GOTO :exit
 xcopy /y %APP_NAME%.exe %BIN_DIR% >nul
 
 :: Copy necessary dll's to the parent directory.
+SET KIT_DIR="C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\"
+IF NOT EXIST %KIT_DIR% GOTO :KIT_NOT_FOUD
 xcopy /y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll" %BIN_DIR% >nul
 
 popd >nul
@@ -123,23 +120,25 @@ echo.
 
 :: Code format
 ::------------------------------
+echo Formatting files...
 SET CLANG_FORMAT_INVOCATION=clang-format -i
 %CLANG_FORMAT_INVOCATION% %SOURCE_FILES% %INCLUDE_DIR%/DxTools.h %INCLUDE_DIR%/WindowTools.h %INCLUDE_DIR%/Toolkit.h
+ECHO Done.
 GOTO :exit
 
 
 :VS_NOT_FOUND
 echo.
-echo Unable to find vcvarsall.bat. Did you install Visual Studio to the default location?
-echo This build script requries either Visual Studio 2019 or 2017; with the standard C/C++ toolset.
+echo Unable to find vcvarsall.bat.
+echo Visual Studio 2019 must be installed in the default location.
 echo.
 GOTO :exit
 
 
-:KIT_NOT_FOUND
+:KIT_NOT_FOUD
 echo.
-echo Unable to find the Windows 10 Development Kit: "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64"
-echo which is requried to build this application.
+echo Unable to find the Windows 10 Development Kit at the following location:
+echo %KIT_DIR%
 echo.
 GOTO :exit
 

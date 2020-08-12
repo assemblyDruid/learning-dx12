@@ -37,7 +37,7 @@ WindowTools::GetClientHeight()
 }
 
 LRESULT CALLBACK
-        WindowTools::WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
+WindowTools::WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
     return DefWindowProc(hwnd, u_msg, w_param, l_param);
 }

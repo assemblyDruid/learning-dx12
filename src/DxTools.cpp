@@ -27,6 +27,7 @@ DXTools::Init()
     EnableDebugLayer();   // no-op on release builds
     CreateDevice(GetAdapter());
     CreateCommandQueue();
+    GetScreenTearSupport();
 
     dx_is_initialized_ = true;
 }
@@ -78,7 +79,8 @@ DXTools::GetAdapter()
             Assert(factory->EnumWarpAdapter(IID_PPV_ARGS(&dxgi_adapter)),
                    "Could not enumerate warp adapters.");
             dxgi_adapter->GetDesc3(&adapter_description);
-            Assert((bool)(adapter_description.Flags & DXGI_ADAPTER_FLAG_SOFTWARE),
+            Assert((bool)(static_cast<size_t>(adapter_description.Flags) &
+                          static_cast<size_t>(DXGI_ADAPTER_FLAG_SOFTWARE)),
                    "Warp adapter description did not reflect expected flags.");
         }
         else
@@ -87,7 +89,8 @@ DXTools::GetAdapter()
                                                        IID_PPV_ARGS(&dxgi_adapter)),
                    "Could not eumerate GPUs by preference.");
             dxgi_adapter->GetDesc3(&adapter_description);
-            Assert((bool)!(adapter_description.Flags & DXGI_ADAPTER_FLAG_SOFTWARE),
+            Assert((bool)!(static_cast<size_t>(adapter_description.Flags) &
+                           static_cast<size_t>(DXGI_ADAPTER_FLAG_SOFTWARE)),
                    "Adapter description did not reflect expected flags.");
         }
 
@@ -128,5 +131,17 @@ DXTools::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE list_type)
     command_queue_desc.NodeMask                 = 0;
 
     // Create queue
-    Assert(device_->CreateCommandQueue(&command_queue_desc, IID_PPV_ARGS(&command_queue_)));
+    Assert(device_->CreateCommandQueue(&command_queue_desc, IID_PPV_ARGS(&command_queue_)),
+           "Could not create the command queue.");
+}
+
+void
+DXTools::GetScreenTearSupport()
+{
+    Microsoft::WRL::ComPtr<IDXGIFactory5> dxgi_factory;
+    Assert(CreateDXGIFactory1(IID_PPV_ARGS(&tmp_dxgi_factory)), "Could not create a dxgi factory.");
+
+    // [ cfarvin::REVISIT ] Check for FAILED()? Verify accuracy.
+    dxgi_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &is_tearing_supported_,
+                                      sizeof(is_tearing_supported_));
 }
