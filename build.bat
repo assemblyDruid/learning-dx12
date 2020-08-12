@@ -5,7 +5,7 @@
 :: Relase / Debug
 ::
 ::------------------------------
-SET /A RELEASE_BUILD=0
+SET /A ReleaseBuild=0
 
 
 ::------------------------------
@@ -14,12 +14,12 @@ SET /A RELEASE_BUILD=0
 :: App name, architecture
 ::
 ::------------------------------
-SET SCRIPT_DIR=%cd%
-SET SOURCE_DIR=%SCRIPT_DIR%\src
-SET INCLUDE_DIR=%SCRIPT_DIR%\include
-SET BIN_DIR=%SCRIPT_DIR%\bin\
-SET APP_NAME=dx12
-SET APP_ARCH=x64
+SET ScriptDirectory=%cd%
+SET SourceDir=%ScriptDirectory%\src
+SET IncludeDirectory=%ScriptDirectory%\include
+SET BinaryDirectory=%ScriptDirectory%\bin\
+SET ApplicationName=dx12
+SET ApplicationArch=x64
 
 
 ::------------------------------
@@ -28,11 +28,15 @@ SET APP_ARCH=x64
 :: Requires Visual Studio 2019
 ::
 ::------------------------------
-SET VC_VARS_2019="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
+SET VisualStudio2019Community="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
+SET VisualStudio2019Professional="C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat"
 
-rem where cl >nul 2>nul
-IF EXIST %VC_VARS_2019% (
-    call %VC_VARS_2019% %APP_ARCH% >nul
+IF EXIST %VisualStudio2019Professional% (
+    call %VisualStudio2019Professional% %ApplicationArch% >nul
+    GOTO :COMPILE_AND_LINK
+)
+IF EXIST %VisualStudio2019Community% (
+    call %VisualStudio2019Community% %ApplicationArch% >nul
     GOTO :COMPILE_AND_LINK
 )
 GOTO :VS_NOT_FOUND
@@ -65,20 +69,14 @@ pushd msvc_landfill >nul
 :: /LIBPATH:<arg>       Specify library directory/directories.
 :: /MP                  Build w/ multiple processes
 
-:: General Parameters
+
+:: Compiler Invocation
+::------------------------------
 SET GeneralParameters=/Oi /Qpar /EHsc /GL /nologo /Ot /TP /MP8 /std:c++latest
-
-:: Debug Paramters
 SET DebugParameters=/Od /MTd /W4 /WX /D__DXDEBUG__#1
-
-:: Release Parameters
 SET ReleaseParameters=/MT /O2 /W4 /WX /Ob2
+SET IncludeParameters=/I%IncludeDirectory%
 
-:: Include Parameters
-SET IncludeParameters=/I%cd%\.. ^
-/I%INCLUDE_DIR%
-
-:: Link Parameters
 SET LinkParameters=/SUBSYSTEM:CONSOLE ^
 /NXCOMPAT ^
 /MACHINE:x64 ^
@@ -88,42 +86,37 @@ d3d12.lib ^
 d3dcompiler.lib ^
 dxgi.lib
 
+SET SourceFiles=%SourceDir%\%ApplicationName%.cpp ^
+%SourceDir%\DxTools.cpp ^
+%SourceDir%\WindowTools.cpp ^
+%SourceDir%\Toolkit.cpp
 
-:: Compiler Invocation
-::------------------------------
-SET SOURCE_FILES=%SOURCE_DIR%\%APP_NAME%.cpp ^
-%SOURCE_DIR%\DxTools.cpp ^
-%SOURCE_DIR%\WindowTools.cpp ^
-%SOURCE_DIR%\Toolkit.cpp
+:: Format source files and headers; wait until this process finishes to compile.
+echo Formatting files...
+SET ClangFormatInvocation=clang-format -i
+START /b /wait CMD /C %ClangFormatInvocation% %SourceFiles% %IncludeDirectory%/DxTools.h %IncludeDirectory%/WindowTools.h %IncludeDirectory%/Toolkit.h
+ECHO Done.
+echo.
 
-SET "GeneralInvocation=%SOURCE_FILES% %GeneralParameters% %IncludeParameters% /link %LinkParameters%"
+SET "GeneralInvocation=%SourceFiles% %GeneralParameters% %IncludeParameters% /link %LinkParameters%"
 
-SET "INVOKE_RELEASE=cl %ReleaseParameters% %GeneralInvocation%"
-SET "INVOKE_DEBUG=cl %DebugParameters% %GeneralInvocation%"
+SET "InvokeRelease=cl %ReleaseParameters% %GeneralInvocation%"
+SET "InvokeDebug=cl %DebugParameters% %GeneralInvocation%"
 
-IF /I "%RELEASE_BUILD%" EQU "1" (echo Release build...) else (echo Debug build...)
-IF /I "%RELEASE_BUILD%" EQU "1" (%INVOKE_RELEASE%) else (%INVOKE_DEBUG%)
+IF /I "%ReleaseBuild%" EQU "1" (echo Release build...) else (echo Debug build...)
+IF /I "%ReleaseBuild%" EQU "1" (%InvokeRelease%) else (%InvokeDebug%)
 IF %ERRORLEVEL% NEQ 0 GOTO :exit
 
 :: Copy the application executable to the parent directory
-xcopy /y %APP_NAME%.exe %BIN_DIR% >nul
+xcopy /y %ApplicationName%.exe %BinaryDirectory% >nul
 
 :: Copy necessary dll's to the parent directory.
-SET KIT_DIR="C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\"
-IF NOT EXIST %KIT_DIR% GOTO :KIT_NOT_FOUD
-xcopy /y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll" %BIN_DIR% >nul
-
+SET WindowsDevKitDirectory="C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\"
+IF NOT EXIST %WindowsDevKitDirectory% GOTO :KIT_NOT_FOUD
+xcopy /y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll" %BinaryDirectory% >nul
 popd >nul
 echo Done.
 echo.
-
-
-:: Code format
-::------------------------------
-echo Formatting files...
-SET CLANG_FORMAT_INVOCATION=clang-format -i
-%CLANG_FORMAT_INVOCATION% %SOURCE_FILES% %INCLUDE_DIR%/DxTools.h %INCLUDE_DIR%/WindowTools.h %INCLUDE_DIR%/Toolkit.h
-ECHO Done.
 GOTO :exit
 
 
@@ -138,7 +131,7 @@ GOTO :exit
 :KIT_NOT_FOUD
 echo.
 echo Unable to find the Windows 10 Development Kit at the following location:
-echo %KIT_DIR%
+echo %WindowsDevKitDirectory%
 echo.
 GOTO :exit
 

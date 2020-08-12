@@ -3,7 +3,7 @@
 #include <windows.h>
 
 // Local
-#include <DXTools.h>
+#include <DxTools.h>
 #include <WindowTools.h>
 #include <toolkit.h>
 
@@ -14,7 +14,7 @@
 int
 main(int argc, char** argv)
 {
-    DXTools     dx     = DXTools();
+    DxTools     dx     = DxTools();
     WindowTools window = WindowTools("DX12_WNDCLASS", "D3D12 Sample");
 
     // Parse command line
@@ -71,7 +71,8 @@ main(int argc, char** argv)
     }
 
     // Apply command line options
-    dx.Init();
+    window.Init();
+    dx.Init(window.GetWindowHandle(), window.GetClientWidth(), window.GetClientHeight());
 
     std::cout << "[ success ]" << std::endl;
     return 0;

@@ -13,6 +13,9 @@ public:
     WindowTools(std::string window_class_name, std::string window_title);
 
     void
+    Init();
+
+    void
     SetClientWidth(u32 client_width);
 
     void
@@ -24,11 +27,12 @@ public:
     u32
     GetClientHeight();
 
-private:
-    static LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
+    HWND
+    GetWindowHandle();
 
-    void
-    WindowSetup();
+private:
+    static LRESULT CALLBACK
+    WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 
     std::string       window_title_;
     const std::string window_class_name_;

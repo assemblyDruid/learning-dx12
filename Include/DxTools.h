@@ -5,8 +5,7 @@
 
 // Windows includes
 #define WIN32_LEAN_AND_MEAN
-#include <stdint.h>
-#include <windows.h>   // hresult
+#include <windows.h>   // hresult, hwnd
 #include <wrl.h>
 
 // DX includes
@@ -16,14 +15,17 @@
 #include <d3dx12.h>
 #include <dxgi1_6.h>
 
-class DXTools
+class DxTools
 {
 public:
-    DXTools();
+    DxTools();
+
     void
-    Init();
+    Init(HWND hwnd, u32 window_width, u32 window_height);
+
     void
     SetUseWarp(bool use_warp);
+
     bool
     GetUseWarp();
 
@@ -43,6 +45,28 @@ private:
     void
     GetScreenTearSupport();
 
+    void
+    CreateSwapChain(HWND hwnd, u32 window_width, u32 window_height);
+
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>
+    CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, u32 num_descriptors);
+
+    void
+    UpdateRenderTargetViews();
+
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>
+    CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
+
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>
+    CreateCommandList(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> command_allocator,
+                      D3D12_COMMAND_LIST_TYPE                        type);
+
+    void
+    CreateFence();
+
+    void
+    CreateEventHandle();
+
     static const u8 kNumFrames_ = 3;
     bool            use_warp_;
     u32             dx_is_initialized_;
@@ -50,11 +74,11 @@ private:
     // D3D graphics components
     Microsoft::WRL::ComPtr<ID3D12Device2>             device_;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue>        command_queue_;
-    Microsoft::WRL::ComPtr<IDXGISwapChain>            swap_chain_;
+    Microsoft::WRL::ComPtr<IDXGISwapChain4>           swap_chain_;
     Microsoft::WRL::ComPtr<ID3D12Resource>            back_buffers_[kNumFrames_];
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> command_list_;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator>    command_allocators_[kNumFrames_];
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>      rtv_descriptor_heap_;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtv_descriptor_heap_;   // recieves color from PS
 
     // Sync components
     Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
