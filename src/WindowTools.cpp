@@ -1,12 +1,13 @@
 #include <WindowTools.h>
 
-WindowTools::WindowTools(std::string window_class_name, std::string window_title)
-    : client_width_(720)
-    , client_height_(1280)
+WindowTools::WindowTools()
+    : is_initialized_(false)
+    , window_width_(720)
+    , window_height_(1280)
     , window_handle_(nullptr)
     , window_rect_({ 0 })
-    , window_class_name_(window_class_name)
-    , window_title_(window_title)
+    , window_class_name_()
+    , window_title_()
     , window_x_(0)
     , window_y_(0)
 {
@@ -33,8 +34,8 @@ WindowTools::Init()
     // Window instance setup
     u32  screen_height = GetSystemMetrics(SM_CXSCREEN);
     u32  screen_width  = GetSystemMetrics(SM_CYSCREEN);
-    RECT window_rect   = { 0, 0, static_cast<LONG>(client_width_),
-                         static_cast<LONG>(client_height_) };
+    RECT window_rect   = { 0, 0, static_cast<LONG>(window_width_),
+                         static_cast<LONG>(window_height_) };
 
     AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, FALSE);
     u32 window_width  = window_rect.right - window_rect.left;
@@ -44,37 +45,83 @@ WindowTools::Init()
     window_y_ = std::max<u32>(0, (screen_height - window_height) / 2);
 
     // Register the window class
-    Assert(RegisterClassExW(&window_class) != 0, "Could not register window class!\n");
+    Require(RegisterClassExW(&window_class) != 0, "Could not register window class!\n");
 
     // Create the window
     window_handle_ = CreateWindowExW(NULL, wide_class_name.c_str(), wide_window_title.c_str(),
                                      WS_OVERLAPPEDWINDOW, window_x_, window_y_, window_width,
                                      window_height, NULL, NULL, window_class.hInstance, nullptr);
     Assert(window_handle_, "Could not create window handle!\n");
+
+    is_initialized_ = true;
 }
 
 void
-WindowTools::SetClientWidth(u32 client_width)
+WindowTools::SetWindowClassName(const char* window_class_name)
 {
-    client_width_ = client_width;
+    if (is_initialized_)
+    {
+        LogManager::Log("Attempted to set window class name after window has been initialized.\n",
+                        LogType::kWarning);
+    }
+    else
+    {
+        window_class_name_ = window_class_name;
+    }
 }
 
 void
-WindowTools::SetClientHeight(u32 client_height)
+WindowTools::SetWindowTitle(const char* window_title)
 {
-    client_height_ = client_height;
+    if (is_initialized_)
+    {
+        LogManager::Log("Attempted to set window title after window has been initialized.\n",
+                        LogType::kWarning);
+    }
+    else
+    {
+        window_title_ = window_title;
+    }
+}
+
+void
+WindowTools::SetWindowWidth(u32 window_width)
+{
+    if (is_initialized_)
+    {
+        LogManager::Log("Attempted to set window width after window has been initialized.\n",
+                        LogType::kWarning);
+    }
+    else
+    {
+        window_width_ = window_width;
+    }
+}
+
+void
+WindowTools::SetWindowHeight(u32 window_height)
+{
+    if (is_initialized_)
+    {
+        LogManager::Log("Attempted to set window height after window has been initialized.\n",
+                        LogType::kWarning);
+    }
+    else
+    {
+        window_height_ = window_height;
+    }
 }
 
 u32
-WindowTools::GetClientWidth()
+WindowTools::GetWindowWidth()
 {
-    return client_width_;
+    return window_width_;
 }
 
 u32
-WindowTools::GetClientHeight()
+WindowTools::GetWindowHeight()
 {
-    return client_height_;
+    return window_height_;
 }
 
 HWND

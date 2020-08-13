@@ -59,19 +59,27 @@ ThrowWithMessage(HRESULT hr, const char* msg = "")
 }
 
 inline void
-Assert(HRESULT hr)
+Require(HRESULT hr)
 {
     if (FAILED(hr)) { ThrowWithMessage(hr); }
 }
 
 inline void
-Assert(HRESULT hr, const char* msg)
+Require(HRESULT hr, const char* msg)
 {
     if (FAILED(hr)) { ThrowWithMessage(hr, msg); }
 }
 
 inline void
-Assert(bool cond, const char* msg)
+Require(bool cond, const char* msg)
 {
     if (!cond) { ThrowWithMessage(msg); }
+}
+
+inline void
+Assert(bool cond, const char* msg)
+{
+#if __DXDEBUG__ == 1
+    Require(cond, msg);
+#endif   // __DXDEBUG__ == 1
 }

@@ -14,8 +14,8 @@
 int
 main(int argc, char** argv)
 {
-    DxTools     dx     = DxTools();
-    WindowTools window = WindowTools("DX12_WNDCLASS", "D3D12 Sample");
+    DxTools      dx     = DxTools();
+    WindowTools* window = WindowTools::GetInstance();
 
     // Parse command line
     if (argc && argv)
@@ -33,8 +33,8 @@ main(int argc, char** argv)
             {
                 valid_option_found = true;
                 if (cmd_arg_idx < argc) cmd_arg_idx++;
-                u32 client_width = std::stol(argv[cmd_arg_idx], nullptr, 10);
-                if (client_width) { window.SetClientWidth(client_width); }
+                u32 window_width = std::stol(argv[cmd_arg_idx], nullptr, 10);
+                if (window_width) { window->SetWindowWidth(window_width); }
             }
 
             // Check for height argument
@@ -42,8 +42,8 @@ main(int argc, char** argv)
             {
                 valid_option_found = true;
                 if (cmd_arg_idx < argc) cmd_arg_idx++;
-                u32 client_height = std::stol(argv[cmd_arg_idx], nullptr, 10);
-                if (client_height) { window.SetClientHeight(client_height); }
+                u32 window_height = std::stol(argv[cmd_arg_idx], nullptr, 10);
+                if (window_height) { window->SetWindowHeight(window_height); }
             }
 
             // Check for windows advanced rasterization platform
@@ -70,10 +70,15 @@ main(int argc, char** argv)
         }
     }
 
-    // Apply command line options
-    window.Init();
-    dx.Init(window.GetWindowHandle(), window.GetClientWidth(), window.GetClientHeight());
+    // Set window app values
+    window->SetWindowClassName("DX12Sample");
+    window->SetWindowTitle("DX12Sample");
 
+    // Apply command line options
+    window->Init();
+    dx.Init();
+
+    while (1) { dx.Update(); }
     std::cout << "[ success ]" << std::endl;
     return 0;
 }

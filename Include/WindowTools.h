@@ -10,35 +10,55 @@
 class WindowTools
 {
 public:
-    WindowTools(std::string window_class_name, std::string window_title);
+    static WindowTools*
+    GetInstance()
+    {
+        static WindowTools instance;
+        return &instance;
+    }
+
+    WindowTools(const WindowTools&) = delete;
+
+    void
+    operator=(const WindowTools&) = delete;
 
     void
     Init();
 
     void
-    SetClientWidth(u32 client_width);
+    SetWindowClassName(const char* window_class_name);
 
     void
-    SetClientHeight(u32 client_height);
+    SetWindowTitle(const char* window_title);
+
+    void
+    SetWindowWidth(u32 window_width);
+
+    void
+    SetWindowHeight(u32 window_height);
 
     u32
-    GetClientWidth();
+    GetWindowWidth();
 
     u32
-    GetClientHeight();
+    GetWindowHeight();
 
     HWND
     GetWindowHandle();
 
 private:
+    WindowTools();
+
     static LRESULT CALLBACK
     WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 
-    std::string       window_title_;
-    const std::string window_class_name_;
+    bool is_initialized_;
 
-    u32  client_width_;
-    u32  client_height_;
+    std::string window_title_;
+    std::string window_class_name_;
+
+    u32  window_width_;
+    u32  window_height_;
     HWND window_handle_;
     RECT window_rect_;
 
