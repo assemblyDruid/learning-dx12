@@ -14,7 +14,6 @@ DxTools::DxTools()
     , current_back_buffer_index_(0)
     , is_v_sync_(true)
     , is_tearing_supported_(false)
-    , is_full_screen_(false)
 #if __DXDEBUG__
     , info_queue_(nullptr)
 #endif   // __DXDEBUG__
@@ -444,8 +443,6 @@ DxTools::ResizeSwapChain()
                                        swap_chain_description.BufferDesc.Format,
                                        swap_chain_description.Flags));
 
-    // Update current back buffer index
     current_back_buffer_index_ = swap_chain_->GetCurrentBackBufferIndex();
-
     UpdateRenderTargetViews();
 }

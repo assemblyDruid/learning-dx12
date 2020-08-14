@@ -2,6 +2,7 @@
 
 WindowTools::WindowTools()
     : is_initialized_(false)
+    , is_full_screen_(false)
     , window_width_(720)
     , window_height_(1280)
     , window_handle_(nullptr)
@@ -128,6 +129,60 @@ HWND
 WindowTools::GetWindowHandle()
 {
     return window_handle_;
+}
+
+void
+WindowTools::UpdateWindowRect()
+{
+    GetWindowRect(window_handle_, &window_rect_);
+}
+
+void
+WindowTools::SetFullScreen(bool full_screen)
+{
+    if (full_screen != is_full_screen_)
+    {
+        is_full_screen_ = full_screen;
+
+        if (full_screen)
+        {
+            // Store old window rect value
+            WindowTools* window = WindowTools::GetInstance();
+            window->UpdateWindowRect();
+
+            // Remove _all_ window decorations
+            UINT window_style = WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
+                                                        WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+            SetWindowLongW(window_handle_, GWL_STYLE, window_style);
+
+            // Query for the nearest display device
+            HMONITOR      monitor = MonitorFromWindow(window_handle_, MONITOR_DEFAULTTONEAREST);
+            MONITORINFOEX monitor_info = {};
+            monitor_info.cbSize        = sizeof(MONITORINFOEX);
+            GetMonitorInfo(monitor, &monitor_info);
+
+            // Set window position
+            SetWindowPos(window_handle_, HWND_TOP, monitor_info.rcMonitor.left,
+                         monitor_info.rcMonitor.top,
+                         monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
+                         monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
+                         SWP_FRAMECHANGED | SW_MAXIMIZE);
+
+            ShowWindow(window_handle_, SW_MAXIMIZE);
+        }
+        else
+        {
+            // Restore window decorators
+            SetWindowLongW(window_handle_, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+            // Restore window position
+            SetWindowPos(window_handle_, HWND_NOTOPMOST, window_rect_.left, window_rect_.top,
+                         window_rect_.right - window_rect_.left,
+                         window_rect_.bottom - window_rect_.top, SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+            ShowWindow(window_handle_, SW_NORMAL);
+        }
+    }
 }
 
 LRESULT CALLBACK

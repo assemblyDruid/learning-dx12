@@ -46,6 +46,12 @@ public:
     HWND
     GetWindowHandle();
 
+    void
+    UpdateWindowRect();
+
+    void
+    SetFullScreen(bool full_screen);
+
 private:
     WindowTools();
 
@@ -53,6 +59,7 @@ private:
     WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 
     bool is_initialized_;
+    bool is_full_screen_;
 
     std::string window_title_;
     std::string window_class_name_;

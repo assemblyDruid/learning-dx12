@@ -90,6 +90,9 @@ private:
     void
     ResizeSwapChain();
 
+    void
+    SetFullScreen(bool full_screen);
+
     static const u8 kNumFrames_ = 3;
     bool            use_warp_;
     bool            dx_is_initialized_;
@@ -115,7 +118,6 @@ private:
     // VSync components
     bool is_v_sync_;
     bool is_tearing_supported_;
-    bool is_full_screen_;
 
     // Frame rate measurements
     std::chrono::high_resolution_clock clock_;
