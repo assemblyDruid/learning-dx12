@@ -6,7 +6,7 @@
 
 // Windows includes
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>   // hresult, hwnd
+#include <windows.h>  // hresult, hwnd
 #include <wrl.h>
 
 // DX includes
@@ -22,80 +22,74 @@
 class DxTools
 {
 public:
-    DxTools();
+    static DxTools* GetInstance();
 
-    void
-    Init();
+    DxTools(const DxTools&) = delete;
 
-    void
-    SetUseWarp(bool use_warp);
+    void operator=(const DxTools&) = delete;
 
-    bool
-    GetUseWarp();
+    void Init(HWND window_handle, u32 window_width, u32 window_height, bool use_warp);
 
-    void
-    Update();
+    bool IsInitialized();
+
+    void Update();
+
+    void Render();
+
+    void ToggleVSync();
+
+    void ResizeSwapChain(u32 window_widht, u32 window_height);
+
+    void TearDown();
 
 private:
-    void
-    EnableDebugLayer();
+    DxTools();
 
-    Microsoft::WRL::ComPtr<IDXGIAdapter4>
-    GetAdapter();
+    void EnableDebugLayer();
 
-    void
-    CreateDevice(Microsoft::WRL::ComPtr<IDXGIAdapter4> dxgi_adapter);
+    Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter(bool use_warp);
 
-    void
-    CreateCommandQueue(D3D12_COMMAND_LIST_TYPE list_type = D3D12_COMMAND_LIST_TYPE_DIRECT);
+    void CreateDevice(Microsoft::WRL::ComPtr<IDXGIAdapter4> dxgi_adapter);
 
-    void
-    GetScreenTearSupport();
+    void CreateCommandQueue(
+        D3D12_COMMAND_LIST_TYPE list_type = D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-    void
-    CreateSwapChain();
+    void GetScreenTearSupport();
 
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>
-    CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, u32 num_descriptors);
+    void CreateSwapChain(HWND window_handle, u32 window_width, u32 window_height);
 
-    void
-    UpdateRenderTargetViews();
+    void CreateDescriptorHeap();
 
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>
-    CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
+    void UpdateRenderTargetViews();
 
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>
-    CreateCommandList(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> command_allocator,
-                      D3D12_COMMAND_LIST_TYPE                        type);
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(
+        D3D12_COMMAND_LIST_TYPE type);
 
-    void
-    CreateFence();
+    void CreateCommandList(
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> command_allocator,
+        D3D12_COMMAND_LIST_TYPE                        type);
 
-    void
-    CreateEventHandle();
+    void CreateFence();
 
-    u64
-    Signal();
+    void CreateEventHandle();
 
-    void
-    AwaitFence(u64                       await_value,
-               std::chrono::milliseconds time_out = (std::chrono::milliseconds::max)());
+    u64 Signal();
 
-    void
-    AwaitGpuIdle();
+    void AwaitFence(
+        u64                       await_value,
+        std::chrono::milliseconds time_out = (std::chrono::milliseconds::max)());
 
-    void
-    Render();
+    void AwaitGpuIdle();
 
-    void
-    ResizeSwapChain();
+    void SetFullScreen(bool full_screen);
 
-    void
-    SetFullScreen(bool full_screen);
+    void ToggleFullScreen();
+
+    void CreateCommandAllocatorsAndList(D3D12_COMMAND_LIST_TYPE type);
 
     static const u8 kNumFrames_ = 3;
     bool            use_warp_;
-    bool            dx_is_initialized_;
+    bool            is_initialized_;
 
     // D3D graphics components
     Microsoft::WRL::ComPtr<ID3D12Device2>             device_;
@@ -127,5 +121,5 @@ private:
 
 #if __DXDEBUG__ == 1
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> info_queue_;
-#endif   // __DXDEBUG__ == 1
+#endif  // __DXDEBUG__ == 1
 };

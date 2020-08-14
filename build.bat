@@ -67,12 +67,14 @@ pushd msvc_landfill >nul
 :: /MACHINE:<arg>       Declare machine arch (should match vcvarsall env setting).
 :: /NODEFAULTLIB:<arg>  Ignore a library.
 :: /LIBPATH:<arg>       Specify library directory/directories.
-:: /MP                  Build w/ multiple processes
-
+:: /MP                  Build w/ multiple processes.
+:: /Zc:inline           Emit less symbol info for inline functions.
+:: /Zc:wchar_t          Treat wide characters as a default (internal) type.
 
 :: Compiler Invocation
 ::------------------------------
-SET GeneralParameters=/Oi /Qpar /EHsc /GL /nologo /Ot /TP /MP8 /std:c++latest
+SET GeneralParameters=/Oi /Qpar /EHsc /GL /nologo /Ot /TP /MP8 ^
+/std:c++latest /Zc:wchar_t /D"_UNICODE" /D"UNICODE" /Zc:inline
 SET DebugParameters=/Od /MTd /W4 /WX /D__DXDEBUG__#1
 SET ReleaseParameters=/MT /O2 /W4 /WX /Ob2
 SET IncludeParameters=/I%IncludeDirectory%
@@ -89,12 +91,14 @@ dxgi.lib
 SET SourceFiles=%SourceDir%\%ApplicationName%.cpp ^
 %SourceDir%\DxTools.cpp ^
 %SourceDir%\WindowTools.cpp ^
-%SourceDir%\Toolkit.cpp
+%SourceDir%\Toolkit.cpp ^
+%SourceDir%\Controller.cpp
 
 :: Format source files and headers; wait until this process finishes to compile.
 echo Formatting files...
 SET ClangFormatInvocation=clang-format -i
-START /b /wait CMD /C %ClangFormatInvocation% %SourceFiles% %IncludeDirectory%/DxTools.h %IncludeDirectory%/WindowTools.h %IncludeDirectory%/Toolkit.h
+START /b /wait CMD /C %ClangFormatInvocation% %SourceFiles% %IncludeDirectory%/DxTools.h ^
+%IncludeDirectory%/WindowTools.h %IncludeDirectory%/Toolkit.h %IncludeDirectory%/Controller.h
 ECHO Done.
 echo.
 

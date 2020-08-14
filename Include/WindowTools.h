@@ -7,11 +7,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+// STL
+#include <iostream>
+
 class WindowTools
 {
 public:
-    static WindowTools*
-    GetInstance()
+    static WindowTools* GetInstance()
     {
         static WindowTools instance;
         return &instance;
@@ -19,50 +21,33 @@ public:
 
     WindowTools(const WindowTools&) = delete;
 
-    void
-    operator=(const WindowTools&) = delete;
+    void operator=(const WindowTools&) = delete;
 
-    void
-    Init();
+    void Init(LRESULT(CALLBACK* pfn_window_procedure)(HWND, UINT, WPARAM, LPARAM),
+              u32                window_width,
+              u32                window_height,
+              const std::string& window_class_name,
+              const std::string& window_title);
 
-    void
-    SetWindowClassName(const char* window_class_name);
+    bool IsInitialized();
 
-    void
-    SetWindowTitle(const char* window_title);
+    u32 GetWindowWidth();
 
-    void
-    SetWindowWidth(u32 window_width);
+    u32 GetWindowHeight();
 
-    void
-    SetWindowHeight(u32 window_height);
+    HWND GetWindowHandle();
 
-    u32
-    GetWindowWidth();
+    void UpdateWindowDemensions();
 
-    u32
-    GetWindowHeight();
+    void SetFullScreen(bool full_screen);
 
-    HWND
-    GetWindowHandle();
-
-    void
-    UpdateWindowRect();
-
-    void
-    SetFullScreen(bool full_screen);
+    void ToggleFullScreen();
 
 private:
     WindowTools();
 
-    static LRESULT CALLBACK
-    WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
-
-    bool is_initialized_;
-    bool is_full_screen_;
-
-    std::string window_title_;
-    std::string window_class_name_;
+    static inline bool is_initialized_ = false;
+    bool               is_full_screen_;
 
     u32  window_width_;
     u32  window_height_;
