@@ -4,7 +4,7 @@
 
 // Local
 #include <Controller.h>
-#include <DxTools.h>
+#include <Dx.h>
 #include <WindowTools.h>
 #include <toolkit.h>
 
@@ -12,7 +12,8 @@
 #include <string>
 #include <vector>
 
-int main(int argc, char** argv)
+int
+main(int argc, char** argv)
 {
     Controller* controller = Controller::GetInstance();
 
@@ -97,8 +98,11 @@ int main(int argc, char** argv)
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
     // Apply command line options
-    controller->Init(
-        _window_width, _window_height, _use_warp, _window_class_name, _window_title);
+    controller->Init(_window_width,
+                     _window_height,
+                     _use_warp,
+                     _window_class_name,
+                     _window_title);
 
     controller->GameLoop();
 

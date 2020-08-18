@@ -34,19 +34,23 @@ enum class LogType
 class LogManager
 {
 public:
-    static void Log(const std::string& msg);
+    static void
+    Log(const std::string& msg);
 
-    static void Log(const std::string& msg, LogType log_type);
+    static void
+    Log(const std::string& msg, LogType log_type);
 };
 
-inline void ThrowWithMessage(const char* msg = "")
+inline void
+ThrowWithMessage(const char* msg = "")
 {
     if (strlen(msg))
         LogManager::Log(msg, LogType::kError);
     throw std::exception(msg);
 }
 
-inline void ThrowWithMessage(HRESULT hr, const char* msg = "")
+inline void
+ThrowWithMessage(HRESULT hr, const char* msg = "")
 {
     std::stringstream error_message;
     error_message << "HRESULT: 0x" << std::hex << hr << std::dec << std::endl
@@ -55,7 +59,8 @@ inline void ThrowWithMessage(HRESULT hr, const char* msg = "")
     ThrowWithMessage(error_message.str().c_str());
 }
 
-inline void Require(HRESULT hr)
+inline void
+Require(HRESULT hr)
 {
     if (FAILED(hr))
     {
@@ -63,7 +68,8 @@ inline void Require(HRESULT hr)
     }
 }
 
-inline void Require(HRESULT hr, const char* msg)
+inline void
+Require(HRESULT hr, const char* msg)
 {
     if (FAILED(hr))
     {
@@ -71,7 +77,8 @@ inline void Require(HRESULT hr, const char* msg)
     }
 }
 
-inline void Require(bool cond, const char* msg)
+inline void
+Require(bool cond, const char* msg)
 {
     if (!cond)
     {
@@ -79,9 +86,13 @@ inline void Require(bool cond, const char* msg)
     }
 }
 
-inline void Assert(bool cond, const char* msg)
+#pragma warning(push)
+#pragma warning(disable : 4100)  // Unused parameter warning in release buidl
+inline void
+Assert(bool cond, const char* msg)
 {
 #if __DXDEBUG__ == 1
     Require(cond, msg);
 #endif  // __DXDEBUG__ == 1
 }
+#pragma warning(pop)

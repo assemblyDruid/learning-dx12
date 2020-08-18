@@ -25,6 +25,7 @@ BraceWrapping:
   SplitEmptyNamespace: true
 ConstructorInitializerAllOnOneLineOrOnePerLine : false
 BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
 DerivePointerAlignment: false
 IndentCaseLabels: false
 NamespaceIndentation: All
@@ -44,3 +45,6 @@ BinPackArguments: false
 BinPackParameters: false
 ExperimentalAutoDetectBinPacking: false
 AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+AlwaysBreakAfterReturnType: All

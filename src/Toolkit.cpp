@@ -2,12 +2,14 @@
 
 #include <Toolkit.h>
 
-void LogManager::Log(const std::string& msg)
+void
+LogManager::Log(const std::string& msg)
 {
     std::cout << "[ log ] " << msg << std::endl;
 }
 
-void LogManager::Log(const std::string& msg, LogType log_type)
+void
+LogManager::Log(const std::string& msg, LogType log_type)
 {
     switch (log_type)
     {

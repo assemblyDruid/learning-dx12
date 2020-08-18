@@ -14,12 +14,12 @@ WindowTools::WindowTools()
 {
 }
 
-void WindowTools::Init(
-    LRESULT(CALLBACK* pfn_window_procedure)(HWND, UINT, WPARAM, LPARAM),
-    u32                window_width,
-    u32                window_height,
-    const std::string& window_class_name,
-    const std::string& window_title)
+void
+WindowTools::Init(LRESULT(CALLBACK* pfn_window_procedure)(HWND, UINT, WPARAM, LPARAM),
+                  u32                window_width,
+                  u32                window_height,
+                  const std::string& window_class_name,
+                  const std::string& window_title)
 {
     window_width_  = window_width;
     window_height_ = window_height;
@@ -42,8 +42,10 @@ void WindowTools::Init(
     // Window instance setup
     u32  screen_height = GetSystemMetrics(SM_CXSCREEN);
     u32  screen_width  = GetSystemMetrics(SM_CYSCREEN);
-    RECT window_rect   = {
-        0, 0, static_cast<LONG>(window_width_), static_cast<LONG>(window_height_)};
+    RECT window_rect   = {0,
+                        0,
+                        static_cast<LONG>(window_width_),
+                        static_cast<LONG>(window_height_)};
 
     AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, FALSE);
     u32 adjusted_window_width  = window_rect.right - window_rect.left;
@@ -75,34 +77,40 @@ void WindowTools::Init(
     ShowWindow(window_handle_, SW_SHOW);
 }
 
-bool WindowTools::IsInitialized()
+bool
+WindowTools::IsInitialized()
 {
     return is_initialized_;
 }
 
-u32 WindowTools::GetWindowWidth()
+u32
+WindowTools::GetWindowWidth()
 {
     return window_width_;
 }
 
-u32 WindowTools::GetWindowHeight()
+u32
+WindowTools::GetWindowHeight()
 {
     return window_height_;
 }
 
-HWND WindowTools::GetWindowHandle()
+HWND
+WindowTools::GetWindowHandle()
 {
     return window_handle_;
 }
 
-void WindowTools::UpdateWindowDemensions()
+void
+WindowTools::UpdateWindowDemensions()
 {
     GetWindowRect(window_handle_, &window_rect_);
     window_width_  = window_rect_.right - window_rect_.left;
     window_height_ = window_rect_.bottom - window_rect_.top;
 }
 
-void WindowTools::SetFullScreen(bool full_screen)
+void
+WindowTools::SetFullScreen(bool full_screen)
 {
     if (full_screen != is_full_screen_)
     {
@@ -156,7 +164,8 @@ void WindowTools::SetFullScreen(bool full_screen)
     }
 }
 
-void WindowTools::ToggleFullScreen()
+void
+WindowTools::ToggleFullScreen()
 {
     SetFullScreen(!is_full_screen_);
 }

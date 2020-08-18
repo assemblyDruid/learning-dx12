@@ -89,7 +89,7 @@ d3dcompiler.lib ^
 dxgi.lib
 
 SET SourceFiles=%SourceDir%\%ApplicationName%.cpp ^
-%SourceDir%\DxTools.cpp ^
+%SourceDir%\Dx.cpp ^
 %SourceDir%\WindowTools.cpp ^
 %SourceDir%\Toolkit.cpp ^
 %SourceDir%\Controller.cpp
@@ -97,7 +97,7 @@ SET SourceFiles=%SourceDir%\%ApplicationName%.cpp ^
 :: Format source files and headers; wait until this process finishes to compile.
 echo Formatting files...
 SET ClangFormatInvocation=clang-format -i
-START /b /wait CMD /C %ClangFormatInvocation% %SourceFiles% %IncludeDirectory%/DxTools.h ^
+START /b /wait CMD /C %ClangFormatInvocation% %SourceFiles% %IncludeDirectory%/Dx.h ^
 %IncludeDirectory%/WindowTools.h %IncludeDirectory%/Toolkit.h %IncludeDirectory%/Controller.h
 ECHO Done.
 echo.

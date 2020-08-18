@@ -1,37 +1,13 @@
 #include <Controller.h>
 
-static DxTools*     dx      = DxTools::GetInstance();
+static Dx*          dx      = Dx::GetInstance();
 static WindowTools* window  = WindowTools::GetInstance();
 static bool         running = true;
 
-Controller::Controller()
-{
-}
-
-Controller* Controller::GetInstance()
-{
-    static Controller instance;
-    return &instance;
-}
-
-void Controller::Init(u32                window_width,
-                      u32                window_height,
-                      bool               use_warp,
-                      const std::string& window_class_name,
-                      const std::string& window_title)
-{
-    window->Init(&Controller::WindowProcedure,
-                 window_width,
-                 window_height,
-                 window_class_name,
-                 window_title);
-    dx->Init(window->GetWindowHandle(), window_width, window_height, use_warp);
-}
-
-LRESULT CALLBACK Controller::WindowProcedure(HWND   hwnd,
-                                             UINT   u_msg,
-                                             WPARAM w_param,
-                                             LPARAM l_param)
+//
+// Global window proc definition
+LRESULT CALLBACK
+WindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
     if (window->IsInitialized() && dx->IsInitialized())
     {
@@ -110,13 +86,49 @@ LRESULT CALLBACK Controller::WindowProcedure(HWND   hwnd,
 
     return DefWindowProc(hwnd, u_msg, w_param, l_param);
 }
+// Global window proc definition
+//
 
-bool Controller::IsRunning()
+Controller::Controller()
+{
+}
+
+Controller*
+Controller::GetInstance()
+{
+    static Controller instance;
+    return &instance;
+}
+
+void
+Controller::Init(u32                window_width,
+                 u32                window_height,
+                 bool               use_warp,
+                 const std::string& window_class_name,
+                 const std::string& window_title)
+{
+    if (!DirectX::XMVerifyCPUSupport())
+    {
+        LogManager::Log("Could not verify CPU support for DirectX math.\n",
+                        LogType::kError);
+    }
+
+    window->Init(WindowProcedure,
+                 window_width,
+                 window_height,
+                 window_class_name,
+                 window_title);
+    dx->Init(window->GetWindowHandle(), window_width, window_height, use_warp);
+}
+
+bool
+Controller::IsRunning()
 {
     return running;
 }
 
-void Controller::GameLoop()
+void
+Controller::GameLoop()
 {
     MSG message = {};
     while (running)
